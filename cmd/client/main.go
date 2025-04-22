@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"io"
 	"log"
@@ -32,51 +31,40 @@ func main() {
 func dial(p config.Peer) {
 	qc, err := transport.QuicDial(p.Server, "cdn.cloudflare.com")
 	if err != nil {
-		log.Printf("[%s] quic dial error: %v", p.Name, err)
+		log.Println("quic dial:", err)
 		return
 	}
 
-	stream, err := qc.OpenStreamSync(context.Background())
+	stream, err := qc.OpenStream()
 	if err != nil {
-		log.Printf("[%s] open stream error: %v", p.Name, err)
+		log.Println("open stream:", err)
 		return
 	}
 
+	// ✅ Noise 加密通道
 	sec, err := transport.WrapNoiseClient(stream, p.PSK)
 	if err != nil {
-		log.Printf("[%s] noise handshake error: %v", p.Name, err)
+		log.Println("noise handshake:", err)
 		return
 	}
 
 	sess, err := mux.Client(sec, p.MaxStreams)
 	if err != nil {
-		log.Printf("[%s] mux error: %v", p.Name, err)
+		log.Println("smux client:", err)
 		return
 	}
 
-	dialf := func(_, addr string) (net.Conn, error) {
+	dialFn := func(_, addr string) (net.Conn, error) {
 		st, err := sess.OpenStream()
 		if err != nil {
 			return nil, err
 		}
-		_, err = st.Write([]byte(addr + "\n"))
-		if err != nil {
-			return nil, err
-		}
+		st.Write([]byte(addr + "\n"))
 		return st, nil
 	}
 
-	s, err := socks5.New(&socks5.Config{Dial: dialf})
-	if err != nil {
-		log.Printf("[%s] socks5 init error: %v", p.Name, err)
-		return
-	}
-
-	go func() {
-		if err := s.ListenAndServe("tcp", p.SocksLocal); err != nil {
-			log.Printf("[%s] socks5 error: %v", p.Name, err)
-		}
-	}()
+	socks, _ := socks5.New(&socks5.Config{Dial: dialFn})
+	go socks.ListenAndServe("tcp", p.SocksLocal)
 
 	log.Printf("[%s] socks %s -> %s", p.Name, p.SocksLocal, p.Server)
 }
