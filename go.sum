@@ -1,5 +1,5 @@
-github.com/armon/go-socks5 v0.0.0-20160902184237-e75332964ef5 h1:sMLyrFvxQbmdcqXTA2iyuNYy0V6rcY8Uz1wIvVOQu5M=
-github.com/armon/go-socks5 v0.0.0-20160902184237-e75332964ef5/go.mod h1:jQklZ4ch7S8S/s3MGEw0MNshM2dPgxT4e03JiL/DM8w=
+github.com/armon/go-socks5 v0.0.0-20160902184237-e75332964ef5 h1:wHh0iHkYZB8zMSxRWpUBQtwG5a7fFgvEO+odwuTv2gs=
+github.com/armon/go-socks5 v0.0.0-20160902184237-e75332964ef5/go.mod h1:wHh0iHkYZB8zMSxRWpUBQtwG5a7fFgvEO+odwuTv2gs=
 github.com/flynn/noise v1.0.0 h1:C7rK8yYsltyIaj9N6VjFGXYhlRRXz7uGXh0gMtUizdM=
 github.com/flynn/noise v1.0.0/go.mod h1:Gh6QwrwjtspO22I76eCVeo1IajQtnbULmL5wLHfF+T0=
 github.com/quic-go/quic-go v0.39.2 h1:4a3PnPwBjKiaV3WfcPiOoAoB4lKUdLymD0f0jY3eMR4=
