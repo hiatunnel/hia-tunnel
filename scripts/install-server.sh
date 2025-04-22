@@ -1,16 +1,24 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# ── 必填监听端口 ────────────────────────────────────────────────
 while [[ -z ${PORT:-} ]]; do
-  read -rp "⚙️  请输入监听端口(必填, 如 8443): " PORT
+  read -rp "⚙️  请输入监听端口 (必填, 如 8443): " PORT
 done
-PSK="${PSK:-$(openssl rand -hex 32)}"
-echo -e "\n监听端口: $PORT"
-echo -e "预共享密钥: $PSK\n"
 
+# ── 预共享密钥 (可留空随机) ────────────────────────────────────
+if [[ -z ${PSK:-} ]]; then
+  PSK=$(openssl rand -hex 32)
+fi
+
+echo -e "\n监听端口 : $PORT"
+echo -e "预共享密钥 : $PSK\n"
+
+# ── 基础环境 ───────────────────────────────────────────────────
 apt update -qq
 apt install -y --no-install-recommends git golang-go jq curl
 
+# ── 拉代码 & 构建 ─────────────────────────────────────────────
 REPO="https://github.com/hiatunnel/hia-tunnel"
 INSTALL_DIR="/opt/hia-tunnel"
 BIN_DIR="/usr/local/bin"
@@ -20,9 +28,11 @@ rm -rf "$INSTALL_DIR"
 git clone --depth 1 "$REPO" "$INSTALL_DIR"
 cd "$INSTALL_DIR"
 go build -o hia-tunnel-server ./cmd/server
-install -Dm755 hia-tunnel-server "$BIN_DIR/hia-tunnel-server"
-install -Dm755 scripts/menu.sh /usr/local/bin/hia-menu
 
+install -Dm755 hia-tunnel-server "$BIN_DIR/hia-tunnel-server"
+install -Dm755 scripts/menu.sh     /usr/local/bin/hia-menu
+
+# ── 写配置 ───────────────────────────────────────────────────
 mkdir -p "$CONF_DIR"
 cat > "$CONF_DIR/server.json" <<EOF
 {
@@ -32,8 +42,10 @@ cat > "$CONF_DIR/server.json" <<EOF
 }
 EOF
 
-install -Dm644 systemd/hia-tunnel-server.service /etc/systemd/system/hia-tunnel-server.service
+# ── systemd ──────────────────────────────────────────────────
+install -Dm644 systemd/hia-tunnel-server.service \
+               /etc/systemd/system/hia-tunnel-server.service
 systemctl daemon-reload
 systemctl enable --now hia-tunnel-server
 
-echo -e "\n✅ 安装完成，使用 'hia-menu' 管理转发与 PSK。"
+echo -e "\n✅ 安装完成！运行  hia-menu  添加转发或修改 PSK。"
