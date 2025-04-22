@@ -7,11 +7,16 @@ PSK="${PSK:-$(openssl rand -hex 32)}"
 echo -e "\n[Hia‑Tunnel] 监听端口 : $PORT"
 echo -e "[Hia‑Tunnel] 预共享密钥 : $PSK\n"
 
-# ── 安装官方 Go 1.22（避免 apt 默认 1.19） ────────────────
+# ── 安装官方 Go 1.22 并强制覆盖系统默认版本 ────────────────
 GO_URL="https://go.dev/dl/go1.22.0.linux-amd64.tar.gz"
 curl -sL $GO_URL | tar -C /usr/local -xz
+
+# 强制使用新版 Go
+ln -sf /usr/local/go/bin/go /usr/bin/go
+ln -sf /usr/local/go/bin/gofmt /usr/bin/gofmt
 export PATH=/usr/local/go/bin:$PATH
 echo 'export PATH=/usr/local/go/bin:$PATH' >/etc/profile.d/go.sh
+
 GO_BIN=/usr/local/go/bin/go
 
 # ── 系统依赖 ──────────────────────────────────────────────
@@ -34,9 +39,11 @@ openssl req -x509 -newkey rsa:2048 -days 3650 -nodes \
   -keyout devkey.pem -out devcert.pem >/dev/null 2>&1
 cd ../../
 
-$GO_BIN mod download
+# ── 编译 ────────────────────────────────────────────────
+$GO_BIN mod tidy
 $GO_BIN build -o hia-tunnel-server ./cmd/server
 
+# ── 安装 ────────────────────────────────────────────────
 install -Dm755 hia-tunnel-server "$BIN_DIR/hia-tunnel-server"
 install -Dm755 scripts/menu.sh     /usr/local/bin/hia-menu
 
