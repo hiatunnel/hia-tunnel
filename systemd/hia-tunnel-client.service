@@ -1,0 +1,8 @@
+[Unit]
+Description=Hia Tunnel Client
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/hia-tunnel-client -c /etc/swift-tunnel/client.json
+Restart=on-failure
+User=nobody
