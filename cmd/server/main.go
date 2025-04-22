@@ -3,9 +3,7 @@ package main
 import (
 	"context"
 	"flag"
-	"io"
 	"log"
-	"net"
 
 	"github.com/hiatunnel/hia-tunnel/internal/config"
 	"github.com/hiatunnel/hia-tunnel/internal/mux"
