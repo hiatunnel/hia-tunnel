@@ -42,7 +42,9 @@ func dial(p config.Peer) {
 		return
 	}
 
-	sec, err := transport.WrapNoiseClient(stream, p.PSK)
+	conn := transport.WrapStreamAsConn(stream)
+	sec, err := transport.WrapNoiseClient(conn, p.PSK)
+	
 	if err != nil {
 		log.Printf("[%s] noise handshake error: %v", p.Name, err)
 		return

@@ -47,7 +47,8 @@ func handle(q quic.Connection, sc *config.ServerConf) {
 		return
 	}
 
-	sec, err := transport.WrapNoiseServer(stream, sc.PSK)
+	sec, err := transport.WrapNoiseServer(&transport.streamConn{Stream: stream, conn: q}, sc.PSK)
+
 	if err != nil {
 		log.Println("noise handshake failed:", err)
 		return
