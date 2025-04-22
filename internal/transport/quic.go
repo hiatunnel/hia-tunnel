@@ -7,7 +7,7 @@ import (
 	"github.com/quic-go/quic-go"
 )
 
-func QuicServer(addr string) (quic.Listener, error) {
+func QuicServer(addr string) (*quic.Listener, error) {
 	return quic.ListenAddr(addr, ServerTLSConfig(), &quic.Config{
 		EnableDatagrams: true,
 		MaxIdleTimeout:  30 * time.Second,
