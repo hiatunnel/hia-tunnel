@@ -7,16 +7,31 @@ PSK="${PSK:-$(openssl rand -hex 32)}"
 echo -e "\n[Hia‑Tunnel] 监听端口 : $PORT"
 echo -e "[Hia‑Tunnel] 预共享密钥 : $PSK\n"
 
-# ── 安装官方 Go 1.22 并强制覆盖系统默认版本 ────────────────
-GO_URL="https://go.dev/dl/go1.22.0.linux-amd64.tar.gz"
-curl -sL $GO_URL | tar -C /usr/local -xz
+# ── 安装或强制升级 Go 1.22 ───────────────────────────────
+REQUIRED_GO_VERSION="go1.22"
+GO_TAR="go1.22.0.linux-amd64.tar.gz"
+GO_URL="https://go.dev/dl/$GO_TAR"
+GO_INSTALL_DIR="/usr/local/go"
 
-# 强制使用新版 Go
-ln -sf /usr/local/go/bin/go /usr/bin/go
-ln -sf /usr/local/go/bin/gofmt /usr/bin/gofmt
+# 检查当前 Go 版本
+if command -v go >/dev/null; then
+  CURRENT_VERSION=$(go version | awk '{print $3}')
+  if [[ "$CURRENT_VERSION" != "$REQUIRED_GO_VERSION" ]]; then
+    echo "[Go] 当前版本 $CURRENT_VERSION 不符合要求，正在强制替换为 $REQUIRED_GO_VERSION..."
+    rm -rf "$GO_INSTALL_DIR"
+  else
+    echo "[Go] 已满足版本要求：$CURRENT_VERSION"
+  fi
+fi
+
+# 安装 Go 1.22（如果未安装或被删除）
+if [[ ! -d "$GO_INSTALL_DIR" ]]; then
+  echo "[Go] 正在安装 $REQUIRED_GO_VERSION..."
+  curl -fsSL "$GO_URL" | tar -C /usr/local -xz
+fi
+
 export PATH=/usr/local/go/bin:$PATH
 echo 'export PATH=/usr/local/go/bin:$PATH' >/etc/profile.d/go.sh
-
 GO_BIN=/usr/local/go/bin/go
 
 # ── 系统依赖 ──────────────────────────────────────────────
