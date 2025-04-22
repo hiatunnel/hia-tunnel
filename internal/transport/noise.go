@@ -24,7 +24,6 @@ func WrapNoiseServer(c net.Conn, psk string) (net.Conn, error) {
 		return nil, err
 	}
 
-	// Read client handshake
 	msg := make([]byte, 512)
 	n, err := c.Read(msg)
 	if err != nil {
@@ -35,7 +34,6 @@ func WrapNoiseServer(c net.Conn, psk string) (net.Conn, error) {
 		return nil, err
 	}
 
-	// Write handshake response
 	out, _, _, err := hs.WriteMessage(nil, nil)
 	if err != nil {
 		return nil, err
@@ -44,8 +42,7 @@ func WrapNoiseServer(c net.Conn, psk string) (net.Conn, error) {
 		return nil, err
 	}
 
-	// ✅ 使用加密连接包装
-	return noise.NewConnection(hs, c), nil
+	return NewNoiseConn(c, hs), nil
 }
 
 func WrapNoiseClient(c net.Conn, psk string) (net.Conn, error) {
@@ -63,7 +60,6 @@ func WrapNoiseClient(c net.Conn, psk string) (net.Conn, error) {
 		return nil, err
 	}
 
-	// Send handshake
 	msg, _, _, err := hs.WriteMessage(nil, nil)
 	if err != nil {
 		return nil, err
@@ -72,7 +68,6 @@ func WrapNoiseClient(c net.Conn, psk string) (net.Conn, error) {
 		return nil, err
 	}
 
-	// Receive handshake response
 	resp := make([]byte, 512)
 	n, err := c.Read(resp)
 	if err != nil {
@@ -83,6 +78,5 @@ func WrapNoiseClient(c net.Conn, psk string) (net.Conn, error) {
 		return nil, err
 	}
 
-	// ✅ 使用加密连接包装
-	return noise.NewConnection(hs, c), nil
+	return NewNoiseConn(c, hs), nil
 }
