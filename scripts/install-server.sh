@@ -8,7 +8,7 @@ echo -e "\n[Hia‑Tunnel] 监听端口 : $PORT"
 echo -e "[Hia‑Tunnel] 预共享密钥 : $PSK\n"
 
 # ── 安装官方 Go 1.22（避免 apt 默认 1.19） ────────────────
-GO_URL="https://go.dev/dl/go1.19.8.linux-amd64.tar.gz"
+GO_URL="https://go.dev/dl/go1.22.0.linux-amd64.tar.gz"
 curl -sL $GO_URL | tar -C /usr/local -xz
 export PATH=/usr/local/go/bin:$PATH
 echo 'export PATH=/usr/local/go/bin:$PATH' >/etc/profile.d/go.sh
