@@ -1,3 +1,18 @@
+package main
+
+import (
+	"context"
+	"flag"
+	"io"
+	"log"
+	"net"
+
+	"github.com/hiatunnel/hia-tunnel/internal/config"
+	"github.com/hiatunnel/hia-tunnel/internal/mux"
+	"github.com/hiatunnel/hia-tunnel/internal/transport"
+	"github.com/quic-go/quic-go"
+)
+
 func main() {
     cfgFile := flag.String("c", "/etc/swift-tunnel/server.json", "config")
     flag.Parse()
